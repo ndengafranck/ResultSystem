@@ -116,6 +116,7 @@ class Complaint(models.Model):
     student = models.ForeignKey(Student,on_delete=models.CASCADE,blank=False,null=False)
     exam_exam_type = models.ForeignKey(ExamExamType,on_delete=models.CASCADE,blank=False,null=False)
     status = models.CharField(choices=Status.choices,default=Status.SUBMITTED)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"The student: {self.student.matricule} concern: {self.concern}"

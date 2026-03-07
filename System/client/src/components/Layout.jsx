@@ -96,7 +96,7 @@ const Layout = ({ children }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    removeTokens();
+    clearTokens();
     navigate('/login');
   };
 

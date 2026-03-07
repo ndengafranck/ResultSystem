@@ -57,8 +57,18 @@ class ExamResultRetrieveSerializer(serializers.ModelSerializer):
         fields = "__all__"
  
 class ComplaintSerializer(serializers.ModelSerializer):
+    
+    concern = serializers.SerializerMethodField()
     class Meta:
         models = Complaint
-        fields = "__all__"
+        exclude = ["student","created_at","status"]
+        
+    def get_concern(self,obj):
+        request = self.context.get("request")
+        
+        if obj.concern and hasattr(obj.corncern,"url"):
+            return request.build_absolute_uri(obj.concern.url)
+        
+        return None
 
 

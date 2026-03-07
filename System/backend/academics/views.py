@@ -329,3 +329,55 @@ class StaffResultRetrieveView(APIView):
             # get courses enrolled in the class in a particular semester
             class_courses = ClassCourse.objects.filter(_class_id=class_id,semester_num=semester_num).all()
             
+            # get the students enrolled in those courses and their results
+            for cc in class_courses:
+                exam_results = ExamResult.objects.filter(
+                    exam_exam_type__exam__class_course=cc
+                ).select_related("student","exam_exam_type__exam__class_course__course")
+                
+                for r in exam_results:
+                    data.append({
+                        "id":r.id,
+                        "student": r.student.user.fullname(),
+                        "remark": r.remark,
+                        "mark_obtained": r.mark_obtained,
+                        "exam_exam_type": r.exam_exam_type.exam_type.name,
+                        "course": r.exam_exam_type.exam.class_course.course.name,
+                        "semester_num": semester_num
+                    })
+            
+
+# complaint view
+class ComplaintSubmissionViewset(viewsets.ModelViewSet):
+    
+    serializer_class = ComplaintSerializer
+    permission_classes = [IsStudent,IsHOD,IsStaff]
+    
+    def get_queryset(self):
+        user = self.request.user
+        
+        if user.teacher:
+            return Complaint.objects.filter(
+                exam_exam_type__exam__class_course___class__department_level_degree__department = user.teacher.department
+            ).order_by("-created_at").all()
+        
+        return Complaint.objects.filter(student=user.student)
+    
+    def perform_create(self,serializer):
+        
+        student = self.request.user.student
+        
+        exam_exam_type_id = self.request.data.get("exam_exam_type_id")
+        
+        # get the exact exam_exam_type
+        exam_exam_type = ExamExamType.objects.filter(id=exam_exam_type_id).filter()
+        
+        if not exam_exam_type:
+            raise serializers.ValidationError({"error":"Exam exam can't be seen sorry"})
+        
+        complaint = serializer.save(
+            exam_exam_type=exam_exam_type,
+            student=student,
+            concern=self.request.FILES.get("consern"),
+            status = Complaint.Status.SUBMITTED
+        )
