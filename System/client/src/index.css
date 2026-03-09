@@ -239,3 +239,13 @@ a {
 .helper-text a:hover {
   text-decoration: underline;
 }
+
+.flex-col{
+  display: flex;
+  flex-direction: column;
+}
+
+.justify-content-start{
+  width: inherit;
+  justify-content: start;
+}

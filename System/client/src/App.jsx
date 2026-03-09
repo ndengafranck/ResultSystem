@@ -9,6 +9,10 @@ import PrivateRoutes from "./components/PrivateRoutes";
 import HodStaffDashboard from "./page/hod_staff/HodStaffDashboard";
 import Layout from "./components/Layout";
 import "./index.css";
+import Department from "./page/director/Department";
+import LevelDegree from "./page/director/LevelDegree";
+import School from "./page/director/School";
+import Profile from "./page/user/Profile";
 
 const Container = styled.div`
   
@@ -21,7 +25,17 @@ function AppContent() {
         <Route
           path="/login"
           element={<Login />} />
-
+          {/* Common user route */}
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoutes>
+              <Layout>
+                <Profile/>
+              </Layout>
+          </PrivateRoutes>
+          } />
+        {/* Director's routes */}
         <Route
           path="/director/dashboard"
           element={
@@ -31,7 +45,34 @@ function AppContent() {
               </Layout>
             </PrivateRoutes>
           } />
-
+        <Route
+          path="/director/school"
+          element={
+            <PrivateRoutes>
+              <Layout>
+                <School />
+              </Layout>
+            </PrivateRoutes>
+          } />
+        <Route
+          path="/director/level-degree"
+          element={
+            <PrivateRoutes>
+              <Layout>
+                <LevelDegree />
+              </Layout>
+            </PrivateRoutes>
+          } />
+        <Route
+          path="/director/department"
+          element={
+            <PrivateRoutes>
+              <Layout>
+                <Department />
+              </Layout>
+            </PrivateRoutes>
+          } />
+        {/* Student's routes */}
         <Route
           path="/student/dashboard"
           element={
@@ -41,7 +82,7 @@ function AppContent() {
               </Layout>
             </PrivateRoutes>
           } />
-
+        {/* hod's or staff's routes */}
         <Route
           path="/hod/staff/dashboard"
           element={

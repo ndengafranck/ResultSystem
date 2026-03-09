@@ -58,6 +58,36 @@ class StudentClassCourseView(APIView):
         return Response(data)
             
 
-# class UserInformationView(APIView):
-#     permission_classes = [IsAuthenticated]
+class UserInformationView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get_serializer_context(self):
+        return {"request": self.request}
     
+    def get(self,request):
+        user = self.request.user
+        data = {}
+        if hasattr(user,'student'):
+            data["matricule"] = user.student.matricule
+            data["role"] = "Student"
+            data["profile"] = request.build_absolute_uri(user.student.profile_pic.url) if user.student.profile_pic else None
+        elif hasattr(user,'director'):
+            data["matricule"] = user.director.matricule
+            data["role"] = "Director"
+            data["profile"] = request.build_absolute_uri(user.director.profile_pic.url) if user.director.profile_pic else None
+        else:
+            data["matricule"] = user.teacher.matricule
+            data["role"] = "HOD" if user.teacher.is_staff else "Staff"
+            data["profile"] = request.build_absolute_uri(user.teacher.profile_pic.url) if user.teacher.profile_pic else None
+        
+        data.update({
+            "id": user.id,
+            "fullname": user.fullname(),
+            "gender": user.gender,
+            "email": user.email,
+            "phone": user.phone,
+            "dob": user.dob,
+            "is_active": user.is_active
+            
+        })
+        
+        return Response(data)

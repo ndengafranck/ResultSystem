@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'synchronisation',
     'structure',
     'academics',
+    'dashboards',
 ]
 
 MIDDLEWARE = [

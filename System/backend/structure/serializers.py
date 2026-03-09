@@ -5,16 +5,24 @@ from .models import *
 
 
 class SchoolSerializer(serializers.ModelSerializer):
+    
+    logo = serializers.SerializerMethodField()
     class Meta:
         model = School
-        exclude = ["external_id","logo"]
-        
+        exclude = ["external_id"]
+    
+    def get_logo(self, obj):
+    
+        request = self.context.get("request")
+        if obj.logo and hasattr(obj.logo, "url"):
+            return request.build_absolute_uri(obj.logo.url)
+        return None
     
 
 class DepartmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Department
-        exclude = ["external_id","logo"]
+        exclude = ["external_id"]
         
 
 class LevelDegreeSerializer(serializers.ModelSerializer):

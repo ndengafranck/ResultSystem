@@ -16,6 +16,12 @@ class SchoolViewset(viewsets.ModelViewSet):
         self.queryset = School.objects.all().order_by("-created_at")
         
         return self.queryset
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({"request": self.request})
+        return context
+
 
 class DepartmentViewset(viewsets.ModelViewSet):
     

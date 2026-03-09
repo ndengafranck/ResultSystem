@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { clearTokens } from '../services/auth';
+import { MdDashboard, MdReportProblem, MdSchool } from "react-icons/md"
+import { FaBook, FaBuilding, FaChartBar, FaGraduationCap, FaSchool, FaTachometerAlt, FaUser } from "react-icons/fa"
+import api from '../services/api';
+import { FiLogOut } from 'react-icons/fi';
 
 const LayoutContainer = styled.div`
   display: flex;
@@ -100,6 +104,54 @@ const Layout = ({ children }) => {
     navigate('/login');
   };
 
+  const adminNavItems = [
+    { id: "dashboard", label: "Dashboard", icon: <MdDashboard />, route: "/director/dashboard" },
+    { id: "schools", label: "Schools", icon: <FaSchool />, route: "/director/school" },
+    { id: "level_degree", label: "Level Degrees", icon: <FaGraduationCap />, route: "/director/level-degree" },
+    { id: "departments", label: "Departments", icon: <FaBuilding />, route: "/director/department" },
+    { id: "profile", label: "Profile", icon: <FaUser />, route: "#" },
+  ];
+
+  const hod_staffNavItems = [
+    { id: "dashboard", label: "Dashboard", icon: <MdDashboard />, route: "/hod/staff/dashboard" },
+    { id: "class", label: "Classes", icon: <MdDashboard />, route: "#" },
+    { id: "course", label: "Courses", icon: <FaBook />, route: "#" },
+    { id: "result", label: "Results", icon: <FaChartBar />, route: "#" },
+    { id: "profile", label: "Profile", icon: <FaUser />, route: "#" },
+  ]
+  const studentNavItems = [
+    { id: "dashboard", label: "Dashboard", icon: <MdDashboard />, route: "/student/dashboard" },
+    { id: "result", label: "Result", icon: <FaChartBar />, route: "#" },
+    { id: "course", label: "Courses", icon: <FaBook />, route: "#" },
+    { id: "complaint", label: "Complaints", icon: <MdReportProblem />, route: "#" },
+    { id: "profile", label: "Profile", icon: <FaUser />, route: "#" },
+  ]
+  const [user, setUser] = useState(null);
+  const [profile,setProfile] = useState(null);
+  const [activeTab, setActiveTab] = useState("dashboard");
+
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (!storedUser) {
+      navigate("/login");
+
+    } else {
+      setUser(storedUser);
+      // Get the user's profile infos
+      const fetchProfile = async()=>{
+        try{
+          const res = await api.get("user/profile/");
+          setProfile(res.data);
+          console.log(profile);
+        }catch(err){
+          console.log(`Profile error: ${err}`);
+        }
+
+      }
+      fetchProfile();
+      console.log(user);
+    }
+  }, [navigate]);
   return (
     <LayoutContainer>
       <Sidebar>
@@ -107,15 +159,56 @@ const Layout = ({ children }) => {
           Uni<span>Portal</span>
         </SidebarHeader>
         <SidebarNav>
-          <NavItem onClick={() => navigate(-1)}>Dashboard Home</NavItem>
-          {/* Add more nav items based on user role if needed */}
+          {user?.user_type === "Admin" ? (
+            adminNavItems.map((item) => (
+              <NavItem key={item.id} className={`${activeTab === item.id ? "btn-accent" : ""}`} onClick={() => {
+                navigate(item.route)
+                setActiveTab(item.id)
+              }}>
+                {item.icon} <span>{item.label}</span>
+              </NavItem>
+            ))
+          ) : ""}
+          {user?.user_type === "Teacher" ? (
+            hod_staffNavItems.map((item) => (
+              <NavItem key={item.id} className={`${activeTab === item.id ? "btn-accent" : ""}`} onClick={() => {
+                navigate(item.route)
+                setActiveTab(item.id)
+              }}>
+                {item.icon} <span>{item.label}</span>
+              </NavItem>
+            ))
+          ) : ""}
+          {user?.user_type === "Student" ? (
+            studentNavItems.map((item) => (
+              <NavItem key={item.id} className={`${activeTab === item.id ? "btn-accent" : ""}`} onClick={() => {
+                navigate(item.route)
+                setActiveTab(item.id)
+              }}>
+                {item.icon} <span>{item.label}</span>
+              </NavItem>
+            ))
+          ) : ""}
         </SidebarNav>
       </Sidebar>
       <MainContent>
         <TopHeader>
           <UserProfile>
-            <span style={{ color: 'var(--text-primary)', fontWeight: '500' }}>My Account</span>
-            <LogoutButton onClick={handleLogout}>Logout</LogoutButton>
+            {profile ? (
+            <>
+              <div className='justify-content-start'>
+                <h3>{profile.role}</h3>
+              </div>
+              <div className='flex-col'>
+                <span style={{ color: 'var(--text-primary)', fontWeight: '500' }}>E-mail: {profile.email} </span>
+                <span style={{ color: 'var(--text-primary)', fontWeight: '500' }}>Matricule: {profile.matricule} </span>
+              </div>
+              <img src={profile.profile} alt="profile" style={{width:"3rem",borderRadius:"50%"}}/>
+            </>
+            ) :(
+            <span style={{ color: 'var(--text-primary)', fontWeight: '500' }}>Profile</span>
+            )}
+            <LogoutButton onClick={handleLogout}><FiLogOut size={30}/></LogoutButton>
           </UserProfile>
         </TopHeader>
         <PageContent>

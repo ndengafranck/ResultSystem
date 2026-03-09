@@ -348,7 +348,7 @@ class StaffResultRetrieveView(APIView):
             
 
 # complaint view
-class ComplaintSubmissionViewset(viewsets.ModelViewSet):
+class ComplaintViewset(viewsets.ModelViewSet):
     
     serializer_class = ComplaintSerializer
     permission_classes = [IsStudent,IsHOD,IsStaff]

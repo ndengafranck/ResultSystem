@@ -35,14 +35,16 @@ class UserSerializer(serializers.ModelSerializer):
         
 
 class PasswordUpdateSerializer(serializers.ModelSerializer):
+    
+    new_password = serializers.CharField()
     class Meta:
         model = User
         fields = ["email","password"]
         extra_kwargs = {"password":{"write_only":True}}
     
     def update(self, instance, validated_data):
-        password = validated_data.get("password")
-        instance.set_password(password)
+        new_password = validated_data.get("new_password")
+        instance.set_password(new_password)
         instance.save()
         
         return instance
@@ -91,15 +93,29 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         raise serializers.ValidationError("Invalid credentials")
 
 class DirectorSerializer(serializers.ModelSerializer):
+    profile_pic = serializers.SerializerMethodField()
     class Meta:
         model = Director
         fields ="__all__"
+    
+    def get_profile_pic(self, obj):
+        request = self.context.get("request")
+        if obj.profile_pic and hasattr(obj.profile_pic, "url"):
+            return request.build_absolute_uri(obj.profile_pic.url)
+        return None
      
         
 class TeacherSerializer(serializers.ModelSerializer):
+    profile_pic = serializers.SerializerMethodField()
     class Meta:
         model = Teacher
         fields ="__all__"
+    
+    def get_profile_pic(self, obj):
+        request = self.context.get("request")
+        if obj.profile_pic and hasattr(obj.profile_pic, "url"):
+            return request.build_absolute_uri(obj.profile_pic.url)
+        return None
         
 class HodSerializer(serializers.ModelSerializer):
     class Meta:
@@ -112,9 +128,16 @@ class StaffSerializer(serializers.ModelSerializer):
         fields ="__all__"
         
 class StudentSerializer(serializers.ModelSerializer):
+    profile_pic = serializers.SerializerMethodField()
     class Meta:
         model = Student
         fields ="__all__"
+    
+    def get_profile_pic(self, obj):
+        request = self.context.get("request")
+        if obj.profile_pic and hasattr(obj.profile_pic, "url"):
+            return request.build_absolute_uri(obj.profile_pic.url)
+        return None
         
 class SignatureSerializer(serializers.ModelSerializer):
     class Meta:
