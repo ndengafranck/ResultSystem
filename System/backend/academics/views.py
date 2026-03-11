@@ -86,6 +86,7 @@ class ExamExamTypeView(APIView):
                             "exam_date": ee_type.exam_date,
                             "Weight_percent": ee_type.weight_percent,
                             "class": exam.class_course._class.name,
+                            "class_id": exam.class_course._class.id,
                             "course": exam.class_course.course.name
                         })
                 return response.Response({"data":data})
@@ -335,6 +336,7 @@ class StaffResultRetrieveView(APIView):
             
             # get the students enrolled in those courses and their results
             for cc in class_courses:
+                
                 exam_results = ExamResult.objects.filter(
                     exam_exam_type__exam__class_course = cc
                 ).select_related("student","exam_exam_type__exam__class_course__course")

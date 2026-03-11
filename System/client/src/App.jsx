@@ -17,6 +17,7 @@ import LevelDegree from "./page/director/LevelDegree";
 import School from "./page/director/School";
 import Profile from "./page/user/Profile";
 import PasswordReset from "./page/user/PasswordReset";
+import Class from "./page/hod_staff/Class";
 
 const Container = styled.div`
   
@@ -129,6 +130,15 @@ function AppContent() {
             <PrivateRoutes>
               <Layout>
                 <HodStaffResults />
+              </Layout>
+            </PrivateRoutes>
+          } />
+        <Route
+          path="/hod/staff/class"
+          element={
+            <PrivateRoutes>
+              <Layout>
+                <Class />
               </Layout>
             </PrivateRoutes>
           } />

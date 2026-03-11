@@ -199,7 +199,7 @@ const HodStaffResults = () => {
   };
 
   // Get distinct classes from exams for the filter dropdown
-  const distinctClasses = Array.from(new Set(exams.map(e => JSON.stringify({ id: e.class_course_id, name: e.class })))).map(e => JSON.parse(e));
+  const distinctClasses = Array.from(new Set(exams.map(e => JSON.stringify({ id: e.class_id, name: e.class })))).map(e => JSON.parse(e));
 
   return (
     <PageContainer>
