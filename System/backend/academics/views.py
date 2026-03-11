@@ -77,14 +77,17 @@ class ExamExamTypeView(APIView):
                 for exam in exams:
                     ee_type = ExamExamType.objects.filter(exam=exam).first()
                     
-                    data.append({
-                        "exam_id": exam.id,
-                        "exam_type": ee_type.exam_type.name,
-                        "exam_date": ee_type.exam_date,
-                        "Weight_percent": ee_type.weight_percent,
-                        "class": exam.class_course._class.name,
-                        "course": exam.class_course.course.name
-                    })
+                    if ee_type:
+                        data.append({
+                            "exam_id": exam.id,
+                            "exam_exam_type_id": ee_type.id,
+                            "class_course_id": exam.class_course.id,
+                            "exam_type": ee_type.exam_type.name,
+                            "exam_date": ee_type.exam_date,
+                            "Weight_percent": ee_type.weight_percent,
+                            "class": exam.class_course._class.name,
+                            "course": exam.class_course.course.name
+                        })
                 return response.Response({"data":data})
             return response.Response({"data":None,"message":"Please you need to be an Hod or a member of Staff"})
         
@@ -293,7 +296,7 @@ class ResultUploadView(APIView):
         
 # Student Result Retreive
 class StudentResultRetrieveView(APIView):
-    permission_classes = [IsStudent,IsHOD,IsStaff]
+    permission_classes = [IsStudent]
     
     def get(self,request,semester_num):
         student = request.user.student
@@ -310,6 +313,7 @@ class StudentResultRetrieveView(APIView):
                         "remark": r.remark,
                         "mark_obtained": r.mark_obtained,
                         "exam_exam_type": r.exam_exam_type.exam_type.name,
+                        "exam_exam_type_id": r.exam_exam_type.id,
                         "course": r.exam_exam_type.exam.class_course.course.name,
                         "semester_num": semester_num
                         })
@@ -319,7 +323,7 @@ class StudentResultRetrieveView(APIView):
 # hod and staff result retreive
 class StaffResultRetrieveView(APIView):
     
-    permission_classes = [IsHOD,IsStaff]
+    permission_classes = [permissions.IsAuthenticated]
     
     def get(self,request,semester_num,class_id):
         user = request.user.teacher.hod if request.user.teacher.is_hod else request.user.teacher.staff
@@ -332,7 +336,7 @@ class StaffResultRetrieveView(APIView):
             # get the students enrolled in those courses and their results
             for cc in class_courses:
                 exam_results = ExamResult.objects.filter(
-                    exam_exam_type__exam__class_course=cc
+                    exam_exam_type__exam__class_course = cc
                 ).select_related("student","exam_exam_type__exam__class_course__course")
                 
                 for r in exam_results:
@@ -345,6 +349,10 @@ class StaffResultRetrieveView(APIView):
                         "course": r.exam_exam_type.exam.class_course.course.name,
                         "semester_num": semester_num
                     })
+                    
+            return response.Response(data)
+        
+        return response.Response({"error":"Sorry try to login"})
             
 
 # complaint view
@@ -378,6 +386,7 @@ class ComplaintViewset(viewsets.ModelViewSet):
         complaint = serializer.save(
             exam_exam_type=exam_exam_type,
             student=student,
-            concern=self.request.FILES.get("consern"),
+            concern=self.request.data.get("concern"),
+            evidence=self.request.FILES.get("evidence"),
             status = Complaint.Status.SUBMITTED
         )

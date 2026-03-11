@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import api from '../../services/api';
 import { FaGraduationCap } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { MdArrowBack } from 'react-icons/md';
 
 const LevelDegree = () => {
   const [levelDegrees, setLevelDegrees] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchLevelDegrees = async () => {
@@ -23,6 +27,10 @@ const LevelDegree = () => {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <h2 style={{ margin: 0 }}><FaGraduationCap /> Level degree Overview</h2>
+        <div onClick={() => { navigate(-1) }} style={{ display: "flex", cursor: "pointer" }}>
+          <MdArrowBack size={24} />
+          <span>Go back</span>
+        </div>
       </div>
 
       {isLoading ? (

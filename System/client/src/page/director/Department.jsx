@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import api from '../../services/api';
 import { FaBuilding } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { MdArrowBack } from 'react-icons/md';
 
 function Department() {
   const [departments, setDepartments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchDepartments = async () => {
@@ -23,6 +27,10 @@ function Department() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <h2 style={{ margin: 0 }}><FaBuilding /> Department Overview</h2>
+        <div onClick={() => { navigate(-1) }} style={{ display: "flex", cursor: "pointer" }}>
+          <MdArrowBack size={24} />
+          <span>Go back</span>
+        </div>
       </div>
 
       {isLoading ? (

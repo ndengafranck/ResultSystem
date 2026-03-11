@@ -18,16 +18,20 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
 
 class UpdatePasswordView(RetrieveUpdateAPIView):
-    queryset = User.objects.all()
     serializer_class = PasswordUpdateSerializer
-    lookup_field = "email"
+    permission_classes = [IsAuthenticated]
+    
+    def get_object(self):
+        return self.request.user
 
 
 # Password reset APIView
 class ResetPasswordView(RetrieveUpdateAPIView):
-    queryset = User.objects.all()
     serializer_class = PasswordResetSerializer
-    lookup_field = "email"
+    
+    
+    def get_object(self):
+        return self.request.user
 
 # The student enrollement view
 # Getting the student's courses based on academic_year
@@ -76,7 +80,7 @@ class UserInformationView(APIView):
             data["profile"] = request.build_absolute_uri(user.director.profile_pic.url) if user.director.profile_pic else None
         else:
             data["matricule"] = user.teacher.matricule
-            data["role"] = "HOD" if user.teacher.is_staff else "Staff"
+            data["role"] = "HOD" if user.teacher.is_hod else "Staff"
             data["profile"] = request.build_absolute_uri(user.teacher.profile_pic.url) if user.teacher.profile_pic else None
         
         data.update({

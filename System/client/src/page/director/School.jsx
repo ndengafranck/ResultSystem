@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import api from '../../services/api';
 import { FaSchool } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { MdArrowBack } from 'react-icons/md';
 
 const School = () => {
 
   const [schools, setSchools] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchSchools = async () => {
@@ -25,6 +29,10 @@ const School = () => {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <h2 style={{ margin: 0 }}><FaSchool /> Schools Overview</h2>
+        <div onClick={() => { navigate(-1) }} style={{ display: "flex", cursor: "pointer" }}>
+          <MdArrowBack size={24} />
+          <span>Go back</span>
+        </div>
       </div>
 
       {isLoading ? (

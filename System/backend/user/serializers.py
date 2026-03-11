@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.contrib.auth import authenticate
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 # Impmort the models to serialize
 from .models import *
@@ -36,14 +37,26 @@ class UserSerializer(serializers.ModelSerializer):
 
 class PasswordUpdateSerializer(serializers.ModelSerializer):
     
-    new_password = serializers.CharField()
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
+    new_password = serializers.CharField(write_only=True)
+    
     class Meta:
         model = User
-        fields = ["email","password"]
-        extra_kwargs = {"password":{"write_only":True}}
-    
+        fields = ["email","password","new_password"]
+        
     def update(self, instance, validated_data):
+        email = validated_data.get("email")
+        password = validated_data.get("password")
         new_password = validated_data.get("new_password")
+        
+        # check email
+        if instance.email != email:
+            raise serializers.ValidationError("Wrong Crdentials")
+        
+        if not instance.check_password(password):
+            raise serializers.ValidationError("Wrong Credentials")
+        
         instance.set_password(new_password)
         instance.save()
         

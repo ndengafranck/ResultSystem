@@ -3,16 +3,20 @@
 import styled from "styled-components";
 import DirectorDashboard from "./page/director/DirectorDashboard";
 import StudentDashboard from "./page/student/StudentDashboard";
+import StudentResult from "./page/student/StudentResult";
+import StudentComplaint from "./page/student/StudentComplaint";
 import Login from "./page/auth/Login";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import PrivateRoutes from "./components/PrivateRoutes";
 import HodStaffDashboard from "./page/hod_staff/HodStaffDashboard";
+import HodStaffResults from "./page/hod_staff/HodStaffResults";
 import Layout from "./components/Layout";
 import "./index.css";
 import Department from "./page/director/Department";
 import LevelDegree from "./page/director/LevelDegree";
 import School from "./page/director/School";
 import Profile from "./page/user/Profile";
+import PasswordReset from "./page/user/PasswordReset";
 
 const Container = styled.div`
   
@@ -25,15 +29,24 @@ function AppContent() {
         <Route
           path="/login"
           element={<Login />} />
-          {/* Common user route */}
+        {/* Common user route */}
         <Route
           path="/profile"
           element={
             <PrivateRoutes>
               <Layout>
-                <Profile/>
+                <Profile />
               </Layout>
-          </PrivateRoutes>
+            </PrivateRoutes>
+          } />
+        <Route
+          path="/update/password"
+          element={
+            <PrivateRoutes>
+              <Layout>
+                <PasswordReset />
+              </Layout>
+            </PrivateRoutes>
           } />
         {/* Director's routes */}
         <Route
@@ -82,6 +95,24 @@ function AppContent() {
               </Layout>
             </PrivateRoutes>
           } />
+        <Route
+          path="/student/result"
+          element={
+            <PrivateRoutes>
+              <Layout>
+                <StudentResult />
+              </Layout>
+            </PrivateRoutes>
+          } />
+        <Route
+          path="/student/complaint"
+          element={
+            <PrivateRoutes>
+              <Layout>
+                <StudentComplaint />
+              </Layout>
+            </PrivateRoutes>
+          } />
         {/* hod's or staff's routes */}
         <Route
           path="/hod/staff/dashboard"
@@ -89,6 +120,15 @@ function AppContent() {
             <PrivateRoutes>
               <Layout>
                 <HodStaffDashboard />
+              </Layout>
+            </PrivateRoutes>
+          } />
+        <Route
+          path="/hod/staff/results"
+          element={
+            <PrivateRoutes>
+              <Layout>
+                <HodStaffResults />
               </Layout>
             </PrivateRoutes>
           } />

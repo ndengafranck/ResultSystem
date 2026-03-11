@@ -4,31 +4,37 @@ export const getAccessToken = () => localStorage.getItem("access");
 export const getRefreshToken = () => localStorage.getItem("refresh");
 
 
-export const saveTokens = (access,refresh,user) =>{
+export const saveTokens = (access, refresh, user) => {
     if (access) localStorage.setItem("access", access)
-    if (refresh) localStorage.setItem("refresh",refresh)
-    if (user) localStorage.setItem("user",JSON.stringify(user))
+    if (refresh) localStorage.setItem("refresh", refresh)
+    if (user) localStorage.setItem("user", JSON.stringify(user))
 };
 
-export const clearTokens = () =>{
-    localStorage.removeItem("access")
-    localStorage.removeItem("refresh")
+export const clearTokens = () => {
+    localStorage.removeItem("access");
+    localStorage.removeItem("refresh");
+    localStorage.removeItem("user");
 };
 
-export const refreshToken = async () =>{
+export const logOut = () => {
+    clearTokens();
+    window.location.href = "/login";
+}
+
+export const refreshToken = async () => {
     const refresh = getRefreshToken()
 
-    if(!refresh) return null;
+    if (!refresh) return null;
 
-    try{
-        const response = await api.post("/refresh-token/",{refresh});
+    try {
+        const response = await api.post("/refresh-token/", { refresh });
         const newAccess = response.data.access;
-        saveTokens(newAccess,refresh)
+        saveTokens(newAccess, refresh)
         console.log("new token gotten ")
         return newAccess;
-    }catch(err){
+    } catch (err) {
         console.warn(`Refresh invalide or Expired ${err}`)
-        
+
         clearTokens();
         return null;
     }
