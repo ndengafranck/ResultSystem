@@ -45,12 +45,17 @@ const Class = () => {
                 <div style={{ flex: 2 }}>Class Name</div>
                 <div style={{ flex: 1 }}>Level</div>
                 <div style={{ flex: 1 }}>Level Degree</div>
+                <div style={{ flex: 1 }}>Actions</div>
                 </ClassItem>
                 {classes.map((c) => (
                 <ClassItem key={c.id}>
                     <div style={{ flex: 2 }}>{c.name}</div>
                     <div style={{ flex: 1 }}>{c.level}</div>
                     <div style={{ flex: 1 }}>{c.level_degree}</div>
+                    <div style={{ flex: 1 }}>
+                        <button>Edit</button>
+                        <button>Delete</button>
+                    </div>
                 </ClassItem>
                 ))}
             </ClassGrid>

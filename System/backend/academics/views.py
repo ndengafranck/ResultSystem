@@ -137,7 +137,7 @@ class ResultUploadView(APIView):
         class_course_id = data["class_course_id"]
         exam_exam_type_id = data["exam_exam_type_id"]
         result_file = data["resut_file"]
-        
+        print(f"class course: {class_course_id} , exam exam type {exam_exam_type_id}")
         
         # 2. Fetch ClassCourse & verify Staff's department match
         
@@ -233,7 +233,7 @@ class ResultUploadView(APIView):
         # Build a lookup: full_name (lowercase)
         
         enrolled_map = {
-            enr.student.user.fullname(): enr.student
+            enr.student.user.fullname().lower(): enr.student
             for enr in enrolled_students
         }
         

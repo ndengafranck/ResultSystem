@@ -79,7 +79,6 @@ class ClassView(APIView):
         staff = Staff.objects.filter(teacher=teacher).first()
         
         if hod or staff:
-            print("Good")
             classes = Class.objects.filter(
                 department_level_degree__department=hod.department
             ) if hod else Class.objects.filter(
@@ -87,7 +86,6 @@ class ClassView(APIView):
             )
             data = []
             for _class in classes:
-                print("Good2")
                 level_degree = DepartmentLevelDegree.objects.filter(id=_class.department_level_degree_id).first()
                 
                 data.append({
