@@ -157,3 +157,7 @@ class SignatureSerializer(serializers.ModelSerializer):
         model = Signature
         fields ="__all__"
 
+class StudentClassCourseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StudentClassCourse
+        fields = "__all__"

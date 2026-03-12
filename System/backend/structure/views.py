@@ -1,9 +1,10 @@
 from rest_framework import viewsets,permissions,response
 from rest_framework.views import APIView 
+
 from .models import *
 from core.permissions import IsDirector,IsHOD
 from .serializers import *
-from user.models import HOD, Staff, Teacher
+from user.models import *
 
 
 
@@ -69,8 +70,26 @@ class ClassView(APIView):
     serializer_class = ClassSerializer
     permission_classes = [permissions.IsAuthenticated]
     
-    def get(self,request):
+    
+    def get(self,request,id=None):
         user = request.user
+        
+        if id:
+            try:
+                _class = Class.objects.get(id=id)
+                count_students = StudentClassCourse.objects.filter(class_course___class=_class).values("student").distinct().count()
+                level_degree = DepartmentLevelDegree.objects.filter(id=_class.department_level_degree_id).first()
+                data = {
+                    "id":_class.id,
+                    "name":_class.name,
+                    "level":_class.level,
+                    "level_degree": level_degree.level_degree.name,
+                    "num_students": count_students,
+                }
+                return response.Response(data)
+            except Class.DoesNotExist:
+                return response.Response({"message":"Class not found"})
+            
         if user.user_type == "Admin":
             return Class.objects.all()
         
@@ -87,14 +106,15 @@ class ClassView(APIView):
             data = []
             for _class in classes:
                 level_degree = DepartmentLevelDegree.objects.filter(id=_class.department_level_degree_id).first()
-                
+                count_students = StudentClassCourse.objects.filter(class_course___class=_class).values("student").distinct().count()
                 data.append({
                     "id":_class.id,
                     "name":_class.name,
                     "level":_class.level,
                     "level_degree": level_degree.level_degree.name,
-                    "message": "success"
+                    "num_students": count_students,
                 })
             
             
             return response.Response(data)
+    

@@ -35,31 +35,52 @@ class ResetPasswordView(RetrieveUpdateAPIView):
 
 # The student enrollement view
 # Getting the student's courses based on academic_year
+# Also getting the students in a class
 class StudentClassCourseView(APIView):
-    permission_classes = [IsStudent]
+    permission_classes = [IsAuthenticated]
     
-    def get(self,request,academic_year):
+    def get(self,request,academic_year=None,class_id=None):
+        
         user = self.request.user
-        formated_year = f"{academic_year-1}/{academic_year}"
-        student = Student.objects.filter(user=user).first()
+        if class_id:
+            _class = models.Class.objects.filter(id=class_id).first()
+            student_class_courses = StudentClassCourse.objects.filter(class_course___class=_class)
+            data = []
+            for s_c_c in student_class_courses:
+                student = Student.objects.filter(id=s_c_c.student.id).first()
+                if not any(d["student_name"] == student.user.fullname() 
+                for d in data):
+                    data.append({
+                        "id": s_c_c.id,
+                        "student_id": student.id,
+                        "student_name": student.user.fullname(),
+                        "student_matricule": student.matricule,
+                        "student_email": student.school_mail,
+                        "enrolled_year": student.enrolled_year
+                    }) 
+            return Response(data)
         
-        student_class_courses = StudentClassCourse.objects.filter(student=student,class_course__academic_year=formated_year)
-        data =[]
-        for s_c_c in student_class_courses:
-            class_course = ClassCourse.objects.filter(id=s_c_c.class_course.id).first()
-            _class = models.Class.objects.filter(id=class_course._class.id).first()
-            data.append({
-                "id":s_c_c.id,
-                "course_name": s_c_c.class_course.course.name,
-                "course_type": s_c_c.class_course.course_type.name,
-                "credit": s_c_c.class_course.credit,
-                "academic_year": formated_year,
-                "semester_num": s_c_c.class_course.semester_num,
-                "class": _class.name
-                
-            })
-        
-        return Response(data)
+        if academic_year and hasattr(user,"student"):
+            formated_year = f"{academic_year-1}/{academic_year}"
+            student = Student.objects.filter(user=user).first()
+            
+            student_class_courses = StudentClassCourse.objects.filter(student=student,class_course__academic_year=formated_year)
+            data =[]
+            for s_c_c in student_class_courses:
+                class_course = ClassCourse.objects.filter(id=s_c_c.class_course.id).first()
+                _class = models.Class.objects.filter(id=class_course._class.id).first()
+                data.append({
+                    "id":s_c_c.id,
+                    "course_name": s_c_c.class_course.course.name,
+                    "course_type": s_c_c.class_course.course_type.name,
+                    "credit": s_c_c.class_course.credit,
+                    "academic_year": formated_year,
+                    "semester_num": s_c_c.class_course.semester_num,
+                    "class": _class.name
+                    
+                })
+            
+            return Response(data)
             
 
 class UserInformationView(APIView):

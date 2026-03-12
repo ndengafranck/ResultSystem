@@ -13,5 +13,6 @@ urlpatterns = [
     path("result/upload",ResultUploadView.as_view()),
     path("result/student/retrieve/<int:semester_num>",StudentResultRetrieveView.as_view()),
     path("result/staff/retrieve/<int:semester_num>/<int:class_id>",StaffResultRetrieveView.as_view()),
+    path("result/staff/retrieve/<int:student_id>",StaffResultRetrieveView.as_view()),
     path("",include(router.urls)),
 ]

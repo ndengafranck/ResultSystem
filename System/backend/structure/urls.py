@@ -12,6 +12,7 @@ router.register("level-degrees",LevelDegreeViewset,basename="level-degree")
 urlpatterns = [
     path("department/<int:department_id>/level-degrees/",DepartmentLevelDegreeView.as_view()),
     path("classes/",ClassView.as_view()),
+    path("class/<int:id>",ClassView.as_view()),
     path("",include(router.urls))
 ]
 

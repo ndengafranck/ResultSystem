@@ -37,7 +37,6 @@ class ClassCourseView(APIView):
 
 class CoursesView(APIView):
     permission_classes = [permissions.IsAuthenticated]
-   
     def get(self,request):
         teacher = request.user.teacher
         
@@ -321,7 +320,7 @@ class ResultUploadView(APIView):
 class StudentResultRetrieveView(APIView):
     permission_classes = [IsStudent]
     
-    def get(self,request,semester_num):
+    def get(self,request,semester_num=None,*args,**kwargs):
         student = request.user.student
         if student:
             data = []
@@ -343,27 +342,28 @@ class StudentResultRetrieveView(APIView):
                 
         return response.Response({"Message":f"Welcome","user":data})
 
+
 # hod and staff result retreive
 class StaffResultRetrieveView(APIView):
     
     permission_classes = [permissions.IsAuthenticated]
     
-    def get(self,request,semester_num,class_id):
+    def get(self,request,semester_num=None,class_id=None,student_id=None,*args,**kwargs):
         user = request.user.teacher.hod if request.user.teacher.is_hod else request.user.teacher.staff
         if user:
             data = []
             
-            # get courses enrolled in the class in a particular semester
-            class_courses = ClassCourse.objects.filter(_class_id=class_id,semester_num=semester_num).all()
-            
-            # get the students enrolled in those courses and their results
-            for cc in class_courses:
+            if student_id:
+                student = Student.objects.filter(id=student_id).first()
+                if not student:
+                    return response.Response({"error":"Student not found"})
                 
-                exam_results = ExamResult.objects.filter(
-                    exam_exam_type__exam__class_course = cc
-                ).select_related("student","exam_exam_type__exam__class_course__course")
+                results = ExamResult.objects.filter(student=student).all()
                 
-                for r in exam_results:
+                for r in results:
+                    
+                    # Get the course type for the class
+                    course_type = r.exam_exam_type.exam.class_course.course_type.name
                     data.append({
                         "id":r.id,
                         "student": r.student.user.fullname(),
@@ -371,8 +371,33 @@ class StaffResultRetrieveView(APIView):
                         "mark_obtained": r.mark_obtained,
                         "exam_exam_type": r.exam_exam_type.exam_type.name,
                         "course": r.exam_exam_type.exam.class_course.course.name,
-                        "semester_num": semester_num
+                        "semester_num": r.exam_exam_type.exam.class_course.semester_num,
+                        "course_type": course_type,
                     })
+                
+            
+            if semester_num and class_id:
+            
+                # get courses enrolled in the class in a particular semester
+                class_courses = ClassCourse.objects.filter(_class_id=class_id,semester_num=semester_num).all()
+                
+                # get the students enrolled in those courses and their results
+                for cc in class_courses:
+                    
+                    exam_results = ExamResult.objects.filter(
+                        exam_exam_type__exam__class_course = cc
+                    ).select_related("student","exam_exam_type__exam__class_course__course")
+                    
+                    for r in exam_results:
+                        data.append({
+                            "id":r.id,
+                            "student": r.student.user.fullname(),
+                            "remark": r.remark,
+                            "mark_obtained": r.mark_obtained,
+                            "exam_exam_type": r.exam_exam_type.exam_type.name,
+                            "course": r.exam_exam_type.exam.class_course.course.name,
+                            "semester_num": semester_num
+                        })
                     
             return response.Response(data)
         

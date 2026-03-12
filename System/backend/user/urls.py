@@ -8,6 +8,7 @@ urlpatterns = [
     path("change-password/",UpdatePasswordView.as_view(),name="Update_password"),
     path("reset-password/<str:email>/",ResetPasswordView.as_view(),name="Reset_password"),
     path("student/<int:academic_year>/courses/",StudentClassCourseView.as_view()),
+    path("students/<int:class_id>/class/",StudentClassCourseView.as_view()),
     path("profile/",UserInformationView.as_view()),
     
 ]
