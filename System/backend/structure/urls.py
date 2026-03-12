@@ -8,10 +8,10 @@ router = DefaultRouter()
 router.register("schools",SchoolViewset,basename="school")
 router.register("departments",DepartmentViewset,basename="department")
 router.register("level-degrees",LevelDegreeViewset,basename="level-degree")
-router.register("classes",ClassViewset,basename="class")
 
 urlpatterns = [
-    path("department/<int:department_id>/level-degrees",DepartmentLevelDegreeView.as_view()),
+    path("department/<int:department_id>/level-degrees/",DepartmentLevelDegreeView.as_view()),
+    path("classes/",ClassView.as_view()),
     path("",include(router.urls))
 ]
 

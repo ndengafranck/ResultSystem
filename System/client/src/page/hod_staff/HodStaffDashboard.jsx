@@ -1,17 +1,35 @@
-import React from 'react'
+import React, { useState } from 'react'
+import api from '../../services/api';
 
 const HodStaffDashboard = () => {
+  const [isSyncing,setIsSyncing] = useState(false);
   
   const assignedClasses = [
     { id: 1, name: 'Computer Science Yr1', courseCount: 4 },
     { id: 2, name: 'Software Engineering Yr2', courseCount: 2 },
   ];
 
+  const handleSync = async () =>{
+    try{
+      setIsSyncing(true);
+      const res = await api.get("sync/data");
+      console.log(res);
+    }catch(err){
+      console.log(`Error of synchronisation ${err}`);
+    }finally{
+      setIsSyncing(false)
+    }
+  }
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <h2 style={{ margin: 0 }}>Department & Staff Overview</h2>
-        <button className="btn btn-primary">Upload Results</button>
+        <button className="btn btn-primary" onClick={()=>handleSync()}>
+          {isSyncing ? 
+          <span>Synchronising.....</span> :
+          "Synchronise Databases"
+          } 
+          </button>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 250px', gap: '2rem' }}>

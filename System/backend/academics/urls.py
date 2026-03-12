@@ -8,6 +8,7 @@ router.register("complaints",ComplaintViewset,basename="complaint")
 
 urlpatterns = [
     path("class/<int:class_id>/course",ClassCourseView.as_view()),
+    path("courses",CoursesView.as_view()),
     path("exams",ExamExamTypeView.as_view()),
     path("result/upload",ResultUploadView.as_view()),
     path("result/student/retrieve/<int:semester_num>",StudentResultRetrieveView.as_view()),

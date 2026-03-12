@@ -180,7 +180,7 @@ const HodStaffResults = () => {
       console.log(res);
       setMessage({
         type: 'success',
-        text: `Results uploaded successfully.\nCreated: ${res.data.created}\nUpdated: ${res.data.updated}\nSkipped: ${res.data.skipped}`
+        text: `Results uploaded successfully.\nCreated: ${res.data.created}\nUpdated: ${res.data.updated}\nSkipped: ${res.data.skipped}\nDetails:\n${res.data.skipped_details.map((d)=>(`${d.student_name} => ${d.reason}\n`))}`
       });
       setUploadData({ exam_info: '', resut_file: null });
       // Clear file input

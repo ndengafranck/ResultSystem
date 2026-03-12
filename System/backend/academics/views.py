@@ -13,7 +13,7 @@ from rest_framework.parsers import MultiPartParser,FormParser
 from user.models import HOD,Staff, StudentClassCourse
 
 class ClassCourseView(APIView):
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
     def get(self,request,class_id):
         _class = Class.objects.filter(id=class_id).first()
         class_courses = ClassCourse.objects.filter(_class=_class)
@@ -35,6 +35,28 @@ class ClassCourseView(APIView):
         
         return response.Response({"data":data,"message":"successfully fetched"})
 
+class CoursesView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+   
+    def get(self,request):
+        teacher = request.user.teacher
+        
+        courses = Course.objects.all()
+       
+        data = [] 
+        for c in courses:
+
+            class_course = ClassCourse.objects.filter(
+                course_id=c.id
+                ).first()
+            if class_course._class.department_level_degree.department == teacher.department:
+                data.append({
+                    "name": c.name,
+                    "code": c.code,
+                    "academic_year": class_course.academic_year,
+                    "semester_num": class_course.semester_num
+                })
+        return response.Response(data)
 
 class ExamExamTypeView(APIView):
     

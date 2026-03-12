@@ -155,7 +155,7 @@ const Layout = ({ children }) => {
   const hod_staffNavItems = [
     { id: "dashboard", label: "Dashboard", icon: <MdDashboard />, route: "/hod/staff/dashboard" },
     { id: "class", label: "Classes", icon: <MdClass />, route: "/hod/staff/class" },
-    { id: "course", label: "Courses", icon: <FaBook />, route: "#" },
+    { id: "course", label: "Courses", icon: <FaBook />, route: "/hod/staff/courses" },
     { id: "result", label: "Results", icon: <FaChartBar />, route: "/hod/staff/results" },
     { id: "profile", label: "Profile", icon: <FaUser />, route: "/profile" },
   ]

@@ -64,13 +64,13 @@ class DepartmentLevelDegreeView(APIView):
         
     
 
-class ClassViewset(viewsets.ModelViewSet):
+class ClassView(APIView):
     
     serializer_class = ClassSerializer
     permission_classes = [permissions.IsAuthenticated]
     
-    def get_queryset(self):
-        user = self.request.user
+    def get(self,request):
+        user = request.user
         if user.user_type == "Admin":
             return Class.objects.all()
         
@@ -79,6 +79,7 @@ class ClassViewset(viewsets.ModelViewSet):
         staff = Staff.objects.filter(teacher=teacher).first()
         
         if hod or staff:
+            print("Good")
             classes = Class.objects.filter(
                 department_level_degree__department=hod.department
             ) if hod else Class.objects.filter(
@@ -86,6 +87,7 @@ class ClassViewset(viewsets.ModelViewSet):
             )
             data = []
             for _class in classes:
+                print("Good2")
                 level_degree = DepartmentLevelDegree.objects.filter(id=_class.department_level_degree_id).first()
                 
                 data.append({
@@ -95,5 +97,6 @@ class ClassViewset(viewsets.ModelViewSet):
                     "level_degree": level_degree.level_degree.name,
                     "message": "success"
                 })
-                
-            return data
+            
+            
+            return response.Response(data)
