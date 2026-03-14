@@ -20,10 +20,15 @@ const StudentItem = styled.div`
 
 const ClassDetail = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
+  
   const [students, setStudents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [classInfo, setClassInfo] = useState(null);
+  const navigate = useNavigate();
+
+  const handleViewResults = (studentId) => {
+    navigate(`/hod/staff/student/${studentId}/results`);
+  };
 
   useEffect(() => {
     const fetchClass = async () => {
@@ -75,6 +80,7 @@ const ClassDetail = () => {
             <div style={{ flex: 2 }}>Student Name</div>
             <div style={{ flex: 2 }}>School Mail</div>
             <div style={{ flex: 1 }}>Enrolled Year</div>
+            <div style={{ flex: 1 }}>Actions</div>
           </StudentItem>
           {students.map((s) => (
             <StudentItem key={s.id || s.pk || JSON.stringify(s)}>
@@ -89,6 +95,11 @@ const ClassDetail = () => {
               </div>
               <div style={{ flex: 1 }}>
                 {s.enrolled_year}
+              </div>
+              <div style={{ flex: 1 }}>
+                <button onClick={() => handleViewResults(s.student_id)}>
+                  View Results
+                </button>
               </div>
             </StudentItem>
           ))}

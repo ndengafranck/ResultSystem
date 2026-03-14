@@ -20,6 +20,7 @@ import PasswordReset from "./page/user/PasswordReset";
 import Class from "./page/hod_staff/Class";
 import StaffCourses from "./page/hod_staff/StaffCourses";
 import ClassDetail from "./page/hod_staff/ClassDetail";
+import StudentResults from "./page/hod_staff/StudentResults";
 
 const Container = styled.div`
   
@@ -150,6 +151,15 @@ function AppContent() {
             <PrivateRoutes>
               <Layout>
                 <ClassDetail />
+              </Layout>
+            </PrivateRoutes>
+          } />
+        <Route
+          path="/hod/staff/student/:studentId/results"
+          element={
+            <PrivateRoutes>
+              <Layout>
+                <StudentResults />
               </Layout>
             </PrivateRoutes>
           } />

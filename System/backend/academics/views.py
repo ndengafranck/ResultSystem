@@ -200,10 +200,9 @@ class ResultUploadView(APIView):
             import pandas as pd
             if file_name.endswith(".csv"):
                 df = pd.read_csv(result_file)
-                print(df.head())
             else:
-                df = pd.read_excel(result_file,skiprows=3) #Skip the first 2 rows since they contain the wrong info
-                print(df.head())
+                df = pd.read_excel(result_file,skiprows=8) #Skip the first 2 rows since they contain the wrong info
+                
         except Exception as e:
             return response.Response(
                 {"error":f"Could not read file: {str(e)}"}
@@ -212,10 +211,11 @@ class ResultUploadView(APIView):
         #  Normalize column names (strip spaces, lowercase)
         
         df.columns = [ c.strip().lower().replace(" ","_") for c in df.columns]
+        df.rename(columns=lambda col: "mark_obtained" if col.startswith("mark") else col ,inplace=True)
         
         required_cols = {"student_name","mark_obtained"}
         missing = required_cols - set(df.columns)
-        
+        print(df.head())
         if missing:
             return response.Response(
                 {"error":f"Missing columns in file: {missing}."
@@ -373,6 +373,7 @@ class StaffResultRetrieveView(APIView):
                         "course": r.exam_exam_type.exam.class_course.course.name,
                         "semester_num": r.exam_exam_type.exam.class_course.semester_num,
                         "course_type": course_type,
+                        "course_code": r.exam_exam_type.exam.class_course.course.code
                     })
                 
             
