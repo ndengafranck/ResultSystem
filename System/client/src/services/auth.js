@@ -27,7 +27,7 @@ export const refreshToken = async () => {
     if (!refresh) return null;
 
     try {
-        const response = await api.post("/refresh-token/", { refresh });
+        const response = await api.post("/user/refresh-token/", { refresh });
         const newAccess = response.data.access;
         saveTokens(newAccess, refresh)
         console.log("new token gotten ")

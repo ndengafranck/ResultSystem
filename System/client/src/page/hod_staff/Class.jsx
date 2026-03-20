@@ -1,3 +1,4 @@
+import { PageLoader } from '../../components/UI';
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from "../../services/api"
@@ -46,7 +47,7 @@ const Class = () => {
 
         <div>
             {isLoading ? 
-            <p>Loading Classes.....</p>:
+            <PageLoader />:
             classes.length > 0 ?(
             <ClassGrid>
                 <ClassItem style={{ background: 'var(--primary)', color: 'white', fontWeight: 'bold' }}>

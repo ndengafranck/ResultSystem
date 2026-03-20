@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useLocation } from 'react-router-dom';
 import api from '../../services/api';
+import { Alert, Spinner, PageLoader } from '../../components/UI';
 
 const PageContainer = styled.div`
   display: flex;
@@ -126,14 +127,6 @@ const SubmitBtn = styled.button`
   }
 `;
 
-const Alert = styled.div`
-  padding: 1rem;
-  border-radius: 6px;
-  margin-bottom: 1rem;
-  background: ${props => props.$type === 'success' ? '#dcfce7' : '#fee2e2'};
-  color: ${props => props.$type === 'success' ? '#16a34a' : '#dc2626'};
-  border: 1px solid ${props => props.$type === 'success' ? '#bbf7d0' : '#fecaca'};
-`;
 
 const StudentComplaint = () => {
     const location = useLocation();
@@ -158,7 +151,7 @@ const StudentComplaint = () => {
     const fetchComplaints = async () => {
         setLoading(true);
         try {
-            const res = await api.get('academics/complaints/');
+            const res = await api.get('academic/complaints/');
             if (res.data) setComplaints(res.data);
         } catch (err) {
             console.error("Error fetching complaints", err);
@@ -191,7 +184,7 @@ const StudentComplaint = () => {
         }
 
         try {
-            await api.post('academics/complaints/', submissionData, {
+            await api.post('academic/complaints/', submissionData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             setMessage({ type: 'success', text: 'Complaint submitted successfully!' });
@@ -221,7 +214,7 @@ const StudentComplaint = () => {
                 <h3 style={{ marginTop: 0, marginBottom: '1.5rem', color: 'var(--text-primary)' }}>Submit a New Complaint</h3>
 
                 {message.text && (
-                    <Alert $type={message.type}>{message.text}</Alert>
+                    <Alert variant={message.type}>{message.text}</Alert>
                 )}
 
                 <Form onSubmit={handleSubmit}>

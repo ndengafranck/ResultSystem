@@ -5,11 +5,12 @@ from core.permissions import IsStudent
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from .serializers import *
+from .models import User, Signature
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import RetrieveUpdateAPIView,RetrieveAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import User
+from rest_framework.parsers import MultiPartParser, FormParser
 from academics.models import ClassCourse
 from structure import models,serializers
 
@@ -98,11 +99,13 @@ class UserInformationView(APIView):
         elif hasattr(user,'director'):
             data["matricule"] = user.director.matricule
             data["role"] = "Director"
+            data["school"] = user.director.school.name
             data["profile"] = request.build_absolute_uri(user.director.profile_pic.url) if user.director.profile_pic else None
         else:
             data["matricule"] = user.teacher.matricule
             data["role"] = "HOD" if user.teacher.is_hod else "Staff"
             data["profile"] = request.build_absolute_uri(user.teacher.profile_pic.url) if user.teacher.profile_pic else None
+            data["department_id"] = user.teacher.department.id if user.teacher.department else None
         
         data.update({
             "id": user.id,
@@ -116,3 +119,47 @@ class UserInformationView(APIView):
         })
         
         return Response(data)
+
+class SignatureUploadView(APIView):
+    """Upload or replace signature for Director, HOD, or Staff."""
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def get(self, request):
+        user = request.user
+        sig = None
+        if hasattr(user, 'director') and user.director.signature:
+            sig = user.director.signature
+        elif hasattr(user, 'teacher'):
+            if user.teacher.is_hod and hasattr(user.teacher, 'hod') and user.teacher.hod.signature:
+                sig = user.teacher.hod.signature
+            elif user.teacher.is_staff and hasattr(user.teacher, 'staff') and user.teacher.staff.signature:
+                sig = user.teacher.staff.signature
+        if sig:
+            return Response({"signature": request.build_absolute_uri(sig.image.url)})
+        return Response({"signature": None})
+
+    def post(self, request):
+        user = request.user
+        image = request.FILES.get("signature")
+        if not image:
+            return Response({"error": "No signature image provided."}, status=400)
+
+        sig = Signature.objects.create(image=image)
+
+        if hasattr(user, 'director'):
+            user.director.signature = sig
+            user.director.save()
+        elif hasattr(user, 'teacher'):
+            if user.teacher.is_hod and hasattr(user.teacher, 'hod'):
+                user.teacher.hod.signature = sig
+                user.teacher.hod.save()
+            elif user.teacher.is_staff and hasattr(user.teacher, 'staff'):
+                user.teacher.staff.signature = sig
+                user.teacher.staff.save()
+            else:
+                return Response({"error": "Only HOD, Staff, and Director can upload signatures."}, status=403)
+        else:
+            return Response({"error": "Students cannot upload signatures."}, status=403)
+
+        return Response({"message": "Signature uploaded successfully.", "signature": request.build_absolute_uri(sig.image.url)})

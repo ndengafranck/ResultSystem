@@ -57,14 +57,16 @@ class Sync:
             user,role = pair
             id,fullname,email,phone,gender,dob,user_type = user
             if user_type == 'Admin':
-                matricule,admin_id,profile_pic = role
+                matricule,admin_id,school_id,profile_pic = role
                 
                 user_model = User.objects.filter(external_id=id).first()
+                school_model = School.objects.filter(external_id=school_id).first()
                 db_director,created = Director.objects.update_or_create(
                     external_id = admin_id,
                     defaults={
                         "matricule": matricule,
-                        "user": user_model
+                        "user": user_model,
+                        "school": school_model,
                     }
                 )
             

@@ -1,70 +1,101 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import api from '../../services/api';
+import { useSync } from '../../context/SyncContext';
+import { Alert, PageLoader, HeroSection, HeroTitle, HeroSub, SectionTitle, StatCard, IconBox, ActionBtn } from '../../components/UI';
+import { useNavigate } from 'react-router-dom';
 
 const HodStaffDashboard = () => {
-  const [isSyncing,setIsSyncing] = useState(false);
-  
-  const assignedClasses = [
-    { id: 1, name: 'Computer Science Yr1', courseCount: 4 },
-    { id: 2, name: 'Software Engineering Yr2', courseCount: 2 },
-  ];
+  const { isSyncing, syncError, syncSuccess, startSync } = useSync();
+  const [dashData, setDashData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
-  const handleSync = async () =>{
-    try{
+  useEffect(() => {
+    fetchDashboard();
+  }, []);
+
+  const fetchDashboard = async () => {
+    // Try HOD dashboard first, fall back to staff dashboard
+    try {
+      const res = await api.get("dashboard/hod/dashboard");
+      setDashData(res.data);
+    } catch {
+      try {
+        const res = await api.get("dashboard/staff/dashboard");
+        setDashData(res.data);
+      } catch (err) {
+        console.error("Dashboard fetch failed:", err);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSync = async () => {
+    try {
       setIsSyncing(true);
       const res = await api.get("sync/data");
       console.log(res);
-    }catch(err){
+    } catch (err) {
       console.log(`Error of synchronisation ${err}`);
-    }finally{
-      setIsSyncing(false)
+    } finally {
+      setIsSyncing(false);
     }
-  }
+  };
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <h2 style={{ margin: 0 }}>Department & Staff Overview</h2>
-        <button className="btn btn-primary" onClick={()=>handleSync()}>
-          {isSyncing ? 
-          <span>Synchronising.....</span> :
-          "Synchronise Databases"
-          } 
-          </button>
+        <button className="btn btn-primary" onClick={startSync}>
+          {isSyncing ? <span>Synchronising.....</span> : "Synchronise Databases"}
+        </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 250px', gap: '2rem' }}>
-        <div>
-          <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>Assigned Classes</h3>
-
-          <div className="data-grid">
-            {assignedClasses.map(cls => (
-              <div key={cls.id} className="data-card">
-                <div className="data-card-header">
-                  <h3 className="data-card-title">{cls.name}</h3>
-                </div>
-                <div className="data-card-body">
-                  <p style={{ margin: 0 }}>Courses Taught: {cls.courseCount}</p>
-                  <p style={{ marginTop: '0.5rem', marginBottom: 0 }}>
-                    <a href="#" style={{ color: 'var(--accent)', fontWeight: 500 }}>Manage Class &rarr;</a>
-                  </p>
-                </div>
+      {loading ? (
+        <PageLoader />
+      ) : dashData ? (
+        <>
+          {/* Stats */}
+          <div className="data-grid" style={{ marginBottom: '2rem' }}>
+            <div className="data-card">
+              <div className="data-card-header"><h3 className="data-card-title">Department</h3></div>
+              <div className="data-card-body"><p style={{ margin: 0, fontWeight: 700, color: 'var(--primary)' }}>{dashData.department}</p></div>
+            </div>
+            <div className="data-card">
+              <div className="data-card-header"><h3 className="data-card-title">Classes</h3></div>
+              <div className="data-card-body"><p style={{ margin: 0, fontSize: '2rem', fontWeight: 700, color: 'var(--primary)' }}>{dashData.total_classes}</p></div>
+            </div>
+            <div className="data-card">
+              <div className="data-card-header"><h3 className="data-card-title">Students</h3></div>
+              <div className="data-card-body"><p style={{ margin: 0, fontSize: '2rem', fontWeight: 700, color: 'var(--primary)' }}>{dashData.total_students}</p></div>
+            </div>
+            <div className="data-card">
+              <div className="data-card-header"><h3 className="data-card-title">Pending Complaints</h3></div>
+              <div className="data-card-body"><p style={{ margin: 0, fontSize: '2rem', fontWeight: 700, color: dashData.pending_complaints > 0 ? '#dc2626' : 'var(--primary)' }}>{dashData.pending_complaints}</p></div>
+            </div>
+            {dashData.unpublished_results !== undefined && (
+              <div className="data-card">
+                <div className="data-card-header"><h3 className="data-card-title">Unpublished Results</h3></div>
+                <div className="data-card-body"><p style={{ margin: 0, fontSize: '2rem', fontWeight: 700, color: dashData.unpublished_results > 0 ? '#d97706' : 'var(--primary)' }}>{dashData.unpublished_results}</p></div>
               </div>
-            ))}
+            )}
           </div>
-        </div>
 
-        {/* Sidebar Panel for Quick Actions */}
-        <div>
-          <h3 style={{ marginTop: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>Quick Actions</h3>
-          <div style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '1.25rem' }}>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <li><button className="btn" style={{ width: '100%', textAlign: 'left', background: '#f8fafc', color: 'var(--primary)', border: '1px solid #cbd5e1' }}>View Department Degrees</button></li>
-              <li><button className="btn" style={{ width: '100%', textAlign: 'left', background: '#f8fafc', color: 'var(--primary)', border: '1px solid #cbd5e1' }}>Evaluate Exams</button></li>
-              <li><button className="btn" style={{ width: '100%', textAlign: 'left', background: '#f8fafc', color: 'var(--primary)', border: '1px solid #cbd5e1' }}>Generate Report</button></li>
-            </ul>
+          {/* Quick Actions */}
+          <h3 style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>Quick Actions</h3>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+            <button className="btn" style={{ background: '#f8fafc', color: 'var(--primary)', border: '1px solid #cbd5e1' }} onClick={() => navigate('/hod/staff/results')}>Upload / Publish Results</button>
+            <button className="btn" style={{ background: '#f8fafc', color: 'var(--primary)', border: '1px solid #cbd5e1' }} onClick={() => navigate('/hod/staff/class')}>Manage Classes</button>
+            <button className="btn" style={{ background: '#f8fafc', color: 'var(--primary)', border: '1px solid #cbd5e1' }} onClick={() => navigate('/hod/staff/complaints')}>Manage Complaints</button>
+            <button className="btn" style={{ background: '#f8fafc', color: 'var(--primary)', border: '1px solid #cbd5e1' }} onClick={() => navigate('/hod/staff/department-visualization')}>Department Analytics</button>
           </div>
+        </>
+      ) : (
+        <div style={{ padding: '3rem', textAlign: 'center', background: 'white', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+          <p style={{ color: 'var(--text-secondary)' }}>No data available. Try synchronising.</p>
         </div>
-      </div>
+      )}
     </div>
   )
 }

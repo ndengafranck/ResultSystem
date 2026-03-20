@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import api from '../../services/api';
+import { PageLoader } from '../../components/UI';
 import { FaBuilding } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { MdArrowBack } from 'react-icons/md';
@@ -34,7 +35,7 @@ function Department() {
       </div>
 
       {isLoading ? (
-        <p>Loading department data...</p>
+        <PageLoader />
       ) : departments.length > 0 ? (
         <div className="data-grid">
           {departments.map((department) => (

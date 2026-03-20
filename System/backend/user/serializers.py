@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from structure.serializers import SchoolSerializer
 # Impmort the models to serialize
 from .models import *
 
@@ -107,6 +108,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 class DirectorSerializer(serializers.ModelSerializer):
     profile_pic = serializers.SerializerMethodField()
+    school = SchoolSerializer()
     class Meta:
         model = Director
         fields ="__all__"

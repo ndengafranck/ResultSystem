@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import api from '../../services/api';
+import { Alert, Spinner, PageLoader } from '../../components/UI';
 
 const PageContainer = styled.div`
   display: flex;
@@ -74,15 +75,6 @@ const SubmitBtn = styled.button`
   }
 `;
 
-const Alert = styled.div`
-  padding: 1rem;
-  border-radius: 6px;
-  margin-bottom: 1rem;
-  background: ${props => props.$type === 'success' ? '#dcfce7' : '#fee2e2'};
-  color: ${props => props.$type === 'success' ? '#16a34a' : '#dc2626'};
-  border: 1px solid ${props => props.$type === 'success' ? '#bbf7d0' : '#fecaca'};
-  white-space: pre-wrap;
-`;
 
 const ResultGrid = styled.div`
   display: flex;
@@ -106,6 +98,8 @@ const HodStaffResults = () => {
   const [pastResults, setPastResults] = useState([]);
   const [semesterFilter, setSemesterFilter] = useState(1);
   const [classFilter, setClassFilter] = useState('');
+  const [publishStatus, setPublishStatus] = useState([]);
+  const [publishing, setPublishing] = useState(null);
 
   const [uploadData, setUploadData] = useState({
     exam_info: '',
@@ -114,6 +108,7 @@ const HodStaffResults = () => {
 
   useEffect(() => {
     fetchExams();
+    fetchPublishStatus();
   }, []);
 
   useEffect(() => {
@@ -140,10 +135,34 @@ const HodStaffResults = () => {
       const res = await api.get('academic/exams');
       if (res.data && res.data.data) {
         setExams(res.data.data);
-        console.log(res)
       }
     } catch (err) {
       console.error("Error fetching exams", err);
+    }
+  };
+
+  const fetchPublishStatus = async () => {
+    try {
+      const res = await api.get('academic/result/publish/status');
+      if (res.data && res.data.data) {
+        setPublishStatus(res.data.data);
+      }
+    } catch (err) {
+      console.error("Error fetching publish status", err);
+    }
+  };
+
+  const handlePublish = async (exam_exam_type_id, action) => {
+    setPublishing(exam_exam_type_id);
+    try {
+      const res = await api.post('academic/result/publish', { exam_exam_type_id, action });
+      setMessage({ type: 'success', text: res.data.message });
+      fetchPublishStatus();
+    } catch (err) {
+      setMessage({ type: 'error', text: err.response?.data?.error || 'Failed to update publish status.' });
+      console.log(err.response);
+    } finally {
+      setPublishing(null);
     }
   };
 
@@ -186,11 +205,10 @@ const HodStaffResults = () => {
       // Clear file input
       document.getElementById('resut_file').value = "";
     } catch (err) {
-      console.error("Error uploading results", err);
       // The backend returns errors in err.response.data
       let errorText = 'Failed to upload results. Check your file format.';
-      if (err.response?.data?.error) {
-        errorText = err.response.data.error;
+      if (err.response?.data?.detail) {
+        errorText = err.response.data.detail;
       }
       setMessage({ type: 'error', text: errorText });
     } finally {
@@ -211,7 +229,7 @@ const HodStaffResults = () => {
         <h3 style={{ marginTop: 0, marginBottom: '1.5rem' }}>Upload Exam Results (CSV/Excel)</h3>
 
         {message.text && (
-          <Alert $type={message.type}>{message.text}</Alert>
+          <Alert variant={message.type}>{message.text}</Alert>
         )}
 
         <Form onSubmit={handleUploadSubmit}>
@@ -292,6 +310,72 @@ const HodStaffResults = () => {
         ) : (
           <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)', background: '#f9fafb', borderRadius: '6px' }}>
             {classFilter ? 'No past results found for this selection.' : 'Select a class to view past uploads.'}
+          </div>
+        )}
+      </Card>
+
+      {/* Publish / Unpublish Panel */}
+      <Card>
+        <h3 style={{ marginTop: 0, marginBottom: '1.5rem' }}>Publish Results to Students</h3>
+
+        {message.text && (
+          <Alert $type={message.type} style={{ marginBottom: '1rem' }}>{message.text}</Alert>
+        )}
+
+        {publishStatus.length > 0 ? (
+          <ResultGrid>
+            <ResultItem style={{ background: 'var(--primary)', color: 'white', fontWeight: 'bold' }}>
+              <div style={{ flex: 2 }}>Course</div>
+              <div style={{ flex: 1 }}>Class</div>
+              <div style={{ flex: 1 }}>Exam Type</div>
+              <div style={{ flex: 1 }}>Results</div>
+              <div style={{ flex: 1 }}>Status</div>
+              <div style={{ flex: 1 }}>Action</div>
+            </ResultItem>
+            {publishStatus.map((ps, i) => (
+              <ResultItem key={i}>
+                <div style={{ flex: 2 }}>{ps.course}</div>
+                <div style={{ flex: 1 }}>{ps.class}</div>
+                <div style={{ flex: 1 }}>{ps.exam_type}</div>
+                <div style={{ flex: 1 }}>{ps.published_results}/{ps.total_results}</div>
+                <div style={{ flex: 1 }}>
+                  <span style={{
+                    padding: '0.2rem 0.6rem',
+                    borderRadius: '20px',
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                    background: ps.is_fully_published ? '#dcfce7' : '#fef9c3',
+                    color: ps.is_fully_published ? '#16a34a' : '#92400e'
+                  }}>
+                    {ps.is_fully_published ? 'Published' : 'Unpublished'}
+                  </span>
+                </div>
+                <div style={{ flex: 1 }}>
+                  {ps.total_results > 0 && (
+                    <button
+                      className="btn"
+                      disabled={publishing === ps.exam_exam_type_id}
+                      onClick={() => handlePublish(ps.exam_exam_type_id, ps.is_fully_published ? 'unpublish' : 'publish')}
+                      style={{
+                        padding: '0.3rem 0.75rem',
+                        fontSize: '0.8rem',
+                        background: ps.is_fully_published ? '#fee2e2' : '#dcfce7',
+                        color: ps.is_fully_published ? '#dc2626' : '#16a34a',
+                        border: `1px solid ${ps.is_fully_published ? '#fca5a5' : '#86efac'}`,
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {publishing === ps.exam_exam_type_id ? '...' : ps.is_fully_published ? 'Unpublish' : 'Publish'}
+                    </button>
+                  )}
+                </div>
+              </ResultItem>
+            ))}
+          </ResultGrid>
+        ) : (
+          <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)', background: '#f9fafb', borderRadius: '6px' }}>
+            No exam results found to publish.
           </div>
         )}
       </Card>

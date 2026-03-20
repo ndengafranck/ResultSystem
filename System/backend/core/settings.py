@@ -34,7 +34,9 @@ INSTALLED_APPS = [
     'structure',
     'academics',
     'dashboards',
+    'announcements',
 ]
+
 
 MIDDLEWARE = [
     # include corsheaders middleware
@@ -145,6 +147,11 @@ SIMPLE_JWT = {
 }
 
 # CORS SETTINGS
-CORS_ALLOWED_ORIGINS = ["http://localhost:5173"]
+CORS_ALLOWED_ORIGINS = ["http://localhost:5173", "http://localhost:5174"]
 
 CORS_ALLOW_CREDENTIALS = True
+
+
+# Allow X-Frame options only to origin
+X_FRAME_OPTIONS = "ALLOWALL"
+

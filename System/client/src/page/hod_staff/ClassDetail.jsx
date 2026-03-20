@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
+import { PageLoader } from '../../components/UI';
 import styled from 'styled-components';
 
 const StudentGrid = styled.div`
@@ -65,7 +66,7 @@ const ClassDetail = () => {
       </h2>
 
       {isLoading ? (
-        <p>Loading students...</p>
+        <PageLoader />
       ) : students.length > 0 ? (
         <StudentGrid>
           <StudentItem

@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { logOut } from '../services/auth';
 import { MdClass, MdDashboard, MdReportProblem, MdSchool } from "react-icons/md"
-import { FaBook, FaBuilding, FaChartBar, FaGraduationCap, FaSchool, FaTachometerAlt, FaUser } from "react-icons/fa"
+import { FaBook, FaBuilding, FaCalendar, FaChartBar, FaExclamationTriangle, FaGraduationCap, FaSchool, FaTachometerAlt, FaUser } from "react-icons/fa"
 import api from '../services/api';
+import { SyncOverlay } from './UI';
+import { useSync } from '../context/SyncContext';
 import { FiLogOut } from 'react-icons/fi';
 
 const LayoutContainer = styled.div`
@@ -139,32 +141,41 @@ const PageContent = styled.div`
 
 const Layout = ({ children }) => {
   const navigate = useNavigate();
+  const { isSyncing } = useSync();
 
   const handleLogout = () => {
     logOut();
   };
 
   const adminNavItems = [
-    { id: "dashboard", label: "Dashboard", icon: <MdDashboard />, route: "/director/dashboard" },
-    { id: "schools", label: "Schools", icon: <FaSchool />, route: "/director/school" },
-    { id: "level_degree", label: "Level Degrees", icon: <FaGraduationCap />, route: "/director/level-degree" },
-    { id: "departments", label: "Departments", icon: <FaBuilding />, route: "/director/department" },
-    { id: "profile", label: "Profile", icon: <FaUser />, route: "/profile" },
+    { id: "dashboard",    label: "Dashboard",    icon: <MdDashboard />,         route: "/director/dashboard" },
+    { id: "departments",  label: "Departments",  icon: <FaBuilding />,          route: "/director/department" },
+    { id: "level_degree", label: "Level Degrees",icon: <FaGraduationCap />,     route: "/director/level-degree" },
+    { id: "transcripts",  label: "Transcripts",  icon: <FaGraduationCap />,     route: "/hod/staff/transcripts" },
+    { id: "announcements",label: "Announcements",icon: <FaExclamationTriangle />,route: "/announcements" },
+    { id: "timetables",   label: "Timetables",   icon: <FaCalendar />,          route: "/timetables" },
+    { id: "profile",      label: "Profile",      icon: <FaUser />,              route: "/profile" },
   ];
 
   const hod_staffNavItems = [
     { id: "dashboard", label: "Dashboard", icon: <MdDashboard />, route: "/hod/staff/dashboard" },
     { id: "class", label: "Classes", icon: <MdClass />, route: "/hod/staff/class" },
     { id: "course", label: "Courses", icon: <FaBook />, route: "/hod/staff/courses" },
-    { id: "result", label: "Results", icon: <FaChartBar />, route: "/hod/staff/results" },
+    { id: "result",      label: "Results",     icon: <FaChartBar />,          route: "/hod/staff/results" },
+    { id: "transcripts", label: "Transcripts", icon: <FaGraduationCap />,      route: "/hod/staff/transcripts" },
+    { id: "announcements",label:"Announcements",icon:<FaExclamationTriangle />, route:"/announcements" },
+    { id: "timetables", label: "Timetables", icon: <FaCalendar />, route: "/timetables" },
     { id: "profile", label: "Profile", icon: <FaUser />, route: "/profile" },
   ]
   const studentNavItems = [
-    { id: "dashboard", label: "Dashboard", icon: <MdDashboard />, route: "/student/dashboard" },
-    { id: "result", label: "Result", icon: <FaChartBar />, route: "/student/result" },
-    { id: "course", label: "Courses", icon: <FaBook />, route: "#" },
-    { id: "complaint", label: "Complaints", icon: <MdReportProblem />, route: "/student/complaint" },
-    { id: "profile", label: "Profile", icon: <FaUser />, route: "/profile" },
+    { id: "dashboard",   label: "Dashboard",   icon: <MdDashboard />,       route: "/student/dashboard" },
+    { id: "result",      label: "Results",     icon: <FaChartBar />,         route: "/student/result" },
+    { id: "course",      label: "Courses",     icon: <FaBook />,             route: "/student/courses" },
+    { id: "transcript",  label: "Transcript",  icon: <FaGraduationCap />,    route: "/student/transcript" },
+    { id: "announcements",label:"Announcements",icon:<FaExclamationTriangle />,route:"/announcements" },
+    { id: "timetables",  label: "Timetables",  icon: <FaCalendar />,         route: "/timetables" },
+    { id: "complaint",   label: "Complaints",  icon: <MdReportProblem />,    route: "/student/complaint" },
+    { id: "profile",     label: "Profile",     icon: <FaUser />,             route: "/profile" },
   ]
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
@@ -255,6 +266,7 @@ const Layout = ({ children }) => {
           {children}
         </PageContent>
       </MainContent>
+      {isSyncing && <SyncOverlay />}
     </LayoutContainer>
   );
 };

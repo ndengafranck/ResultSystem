@@ -1,7 +1,7 @@
 from django.db import models
 # Import the AbstractUser from django model
 from django.contrib.auth.models import AbstractUser
-from structure.models import Department
+from structure.models import Department,School
 
 # Import the images overwriter
 from core.image_write import OverWriteStorage
@@ -46,11 +46,12 @@ class User(AbstractUser):
         return f"{self.first_name} {self.last_name}".strip().upper()
 
 
-# The Director Model
+# The Director Model director of schools
 class Director(models.Model):
     external_id = models.IntegerField(null=True,blank=True)
     matricule = models.CharField(max_length=20,null=False,blank=False)
     user = models.OneToOneField(User,on_delete=models.CASCADE,related_name="director")
+    school = models.OneToOneField(School,on_delete=models.SET_NULL,blank=True,null=True,related_name='director')
     signature = models.OneToOneField(Signature,on_delete=models.SET_NULL,null=True,blank=True)
     profile_pic = models.ImageField(upload_to="directors/profile_pics/",null=True,blank=True,storage=OverWriteStorage())
     

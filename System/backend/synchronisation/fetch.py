@@ -11,7 +11,7 @@ class FetchData:
         return univ_users
     
     def fetch_director_by_id(self,id:int):
-        self.cursor.execute(f"SELECT matricule,admin_id,profile_pic FROM admins WHERE admin_id ={id}")
+        self.cursor.execute(f"SELECT matricule,admin_id,school_id,profile_pic FROM admins WHERE admin_id ={id}")
         director = self.cursor.fetchone()
         return director
     def fetch_teacher_by_id(self,id:int):

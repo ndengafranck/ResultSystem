@@ -14,9 +14,10 @@ class SchoolViewset(viewsets.ModelViewSet):
     permission_classes = [IsDirector]
     
     def get_queryset(self):
-        self.queryset = School.objects.all().order_by("-created_at")
-        
-        return self.queryset
+        director = getattr(self.request.user, 'director', None)
+        if director and director.school:
+            return School.objects.filter(id=director.school.id)
+        return School.objects.none()
     
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -27,12 +28,17 @@ class SchoolViewset(viewsets.ModelViewSet):
 class DepartmentViewset(viewsets.ModelViewSet):
     
     serializer_class = DepartmentSerializer
-    permission_classes = [IsDirector]
+    permission_classes = [permissions.IsAuthenticated]
     
     def get_queryset(self):
-        self.queryset = Department.objects.all().order_by("-created_at")
-        
-        return self.queryset
+        user = self.request.user
+        if hasattr(user, 'director'):
+            director = user.director
+            if director and director.school:
+                return Department.objects.filter(school=director.school).order_by("-created_at")
+            return Department.objects.none()
+        # HOD/Staff/Teachers can also read departments
+        return Department.objects.all().order_by("-created_at")
     
     
 class LevelDegreeViewset(viewsets.ModelViewSet):
@@ -91,7 +97,34 @@ class ClassView(APIView):
                 return response.Response({"message":"Class not found"})
             
         if user.user_type == "Admin":
-            return Class.objects.all()
+            # get the schools in department
+            school = user.director.school
+            department = request.query_params.get('department')
+            
+            if department:
+                department = Department.objects.filter(id=department).first()
+                print(f"Department :{department}")
+                classes = Class.objects.filter(
+                department_level_degree__department__id=department.id
+                )
+                data = [{
+                'id': c.id,
+                'name': c.name,
+                 }
+                for c in classes]
+            else:
+                departments = Department.objects.filter(school=school)
+                
+                classes = Class.objects.filter(
+                    department_level_degree__department__in=departments
+                )
+                data = [{
+                    'id': c.id,
+                    'name': c.name,
+                    
+                }
+                for c in classes]
+            return response.Response(data)
         
         teacher = Teacher.objects.filter(user=user).first()
         hod = HOD.objects.filter(teacher=teacher).first()

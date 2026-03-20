@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import api from '../../services/api';
+import { PageLoader } from '../../components/UI';
 import styled from 'styled-components';
 
 
@@ -39,7 +40,7 @@ const StaffCourses = () => {
     return (
         <div>
            {isLoading ? 
-            <p>Loading Courses.....</p>:
+            <PageLoader />:
             courses.length > 0 ?(
             <CourseGrid>
                 <CourseItem style={{ background: 'var(--primary)', color: 'white', fontWeight: 'bold' }}>

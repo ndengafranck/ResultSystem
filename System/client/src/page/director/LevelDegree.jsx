@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import api from '../../services/api';
+import { PageLoader } from '../../components/UI';
 import { FaGraduationCap } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { MdArrowBack } from 'react-icons/md';
@@ -34,7 +35,7 @@ const LevelDegree = () => {
       </div>
 
       {isLoading ? (
-        <p>Loading level degree data...</p>
+        <PageLoader />
       ) : levelDegrees.length > 0 ? (
         <div className="data-grid">
           {levelDegrees.map((levelDegree) => (

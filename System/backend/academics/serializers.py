@@ -1,5 +1,7 @@
 
 from rest_framework import serializers
+
+from user.serializers import StudentSerializer
 from .models import *
 
 class CourseSerializer(serializers.ModelSerializer):
@@ -51,24 +53,42 @@ class ExamResultSerializer(serializers.ModelSerializer):
         return value
 
 class ExamResultRetrieveSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = ExamResult
         
         fields = "__all__"
  
-class ComplaintSerializer(serializers.ModelSerializer):
-    
-    concern = serializers.SerializerMethodField()
+class ComplaintStaffSerializer(serializers.ModelSerializer):
+    student = StudentSerializer()
+    course = serializers.CharField(
+        source="exam_exam_type.exam.class_course.course.name"
+    )
     class Meta:
-        models = Complaint
-        exclude = ["student","created_at","status"]
+        model = Complaint
+        fields = "__all__"
+    
+    def update(self,instance,validated_data):
+        new_status = validated_data.get("status").lower()
+        if new_status == "rejected":
+            instance.status = Complaint.Status.REJECTED
+        elif new_status == "approved":
+            instance.status = Complaint.Status.APPROVED
+        elif new_status == "solved":
+            instance.status = Complaint.Status.SOLVED
+        elif new_status == "under review":
+            instance.status = Complaint.Status.REVIEW
+        elif new_status == "responded":
+            instance.status = Complaint.Status.RESPONDED
         
-    def get_concern(self,obj):
-        request = self.context.get("request")
+        instance.save()
         
-        if obj.concern and hasattr(obj.corncern,"url"):
-            return request.build_absolute_uri(obj.concern.url)
-        
-        return None
+        return instance
+class ComplaintSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Complaint
+        fields = "__all__"
+        read_only_fields = ["student","created_at","status","exam_exam_type","course"]
+    
 
 

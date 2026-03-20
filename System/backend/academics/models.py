@@ -98,6 +98,17 @@ class ExamResult(models.Model):
     def __str__(self):
         return f"Student: {self.student.matricule} scored: {self.mark_obtained}"
     
+    def get_gpa(self):
+        remark_to_gpa = {
+            self.Remark.EXCELLENT: 4.0,
+            self.Remark.VERYGOOD: 3.7,
+            self.Remark.GOOD: 3.3,
+            self.Remark.FAIRLYGOOD: 3.0,
+            self.Remark.AVERAGE: 2.0,
+            self.Remark.WEAK: 0.0,
+        }
+        return remark_to_gpa.get(self.remark,0.0)
+    
 
 # Complaints models
 class Complaint(models.Model):
@@ -108,6 +119,8 @@ class Complaint(models.Model):
         APPROVED = "Approved"
         RESPONDED = "Responded"
         SOLVED = "Solved"
+        REJECTED = "Rejected"
+        REVIEW = "Under Review","under review"
         
     original_mark = models.DecimalField(max_digits=5,decimal_places=2,null=True,blank=True)
     concern = models.TextField(null=False,blank=False)
@@ -120,3 +133,31 @@ class Complaint(models.Model):
 
     def __str__(self):
         return f"The student: {self.student.matricule} concern: {self.concern}"
+
+
+
+# Transcript model
+class Transcript(models.Model):
+    class Status(models.TextChoices):
+        PENDING   = "Pending"
+        VALIDATED = "Validated"
+        REJECTED  = "Rejected"
+
+    student       = models.ForeignKey(Student, on_delete=models.CASCADE, related_name="transcripts")
+    requested_at  = models.DateTimeField(auto_now_add=True)
+    academic_year = models.CharField(max_length=10, null=True, blank=True)
+    status        = models.CharField(choices=Status.choices, default=Status.PENDING, max_length=20)
+
+    # Signatures — each role optionally stamps
+    director_signature = models.ForeignKey("user.Signature", null=True, blank=True,
+                                           on_delete=models.SET_NULL, related_name="director_transcripts")
+    hod_signature      = models.ForeignKey("user.Signature", null=True, blank=True,
+                                           on_delete=models.SET_NULL, related_name="hod_transcripts")
+    staff_signature    = models.ForeignKey("user.Signature", null=True, blank=True,
+                                           on_delete=models.SET_NULL, related_name="staff_transcripts")
+
+    validated_at = models.DateTimeField(null=True, blank=True)
+    notes        = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Transcript({self.student.matricule} – {self.status})"
