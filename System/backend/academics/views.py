@@ -555,7 +555,7 @@ class ResultPublishmentsView(APIView):
 
     def post(self, request, *args, **kwargs):
         """Publish or unpublish results for a given exam_exam_type_id."""
-        if hasattr(request.user,"staff"):
+        if hasattr(request.user.teacher,"staff"):
             exam_exam_type_id = request.data.get("exam_exam_type_id")
             action = request.data.get("action")  # "publish" or "unpublish"
 

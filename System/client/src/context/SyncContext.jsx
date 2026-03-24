@@ -7,11 +7,15 @@ export const SyncProvider = ({ children }) => {
   const [isSyncing, setIsSyncing]     = useState(false);
   const [syncError, setSyncError]     = useState(null);
   const [syncSuccess, setSyncSuccess] = useState(false);
+  // const [user, setUser] = useState(null);
 
   const startSync = useCallback(async () => {
     setIsSyncing(true);
     setSyncError(null);
     setSyncSuccess(false);
+    // const storedUser = JSON.stringify(localStorage.getItem("user"));
+
+    // setUser(storedUser);
     try {
       await api.get('sync/data');
       setSyncSuccess(true);

@@ -3,6 +3,7 @@
 :root {
   /* University Theme Palette */
   --bg-color: #f4f6f8;
+  --bg-color-not-found: #fdfafa;
   --card-bg: #ffffff;
   --text-primary: #0f172a;
   --text-secondary: #475569;
@@ -269,4 +270,10 @@ a {
   .sidebar-label{
     display: none;
   }
+}
+
+/* not found styles */
+.not-found-container{
+  background-color: var(--bg-color-not-found) ;
+  
 }

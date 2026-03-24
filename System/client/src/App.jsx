@@ -28,6 +28,7 @@ import Announcements from "./page/user/Announcements";
 import CreateAnnouncement from "./page/user/CreateAnnouncement";
 import Timetables from "./page/user/Timetables";
 import CreateTimetable from "./page/user/CreateTimetable";
+import NotFound from "./page/user/NotFound";
 
 const Container = styled.div`
   
@@ -41,13 +42,17 @@ function AppContent() {
           path="/login"
           element={<Login />} />
         <Route
-          path="/"
-          element={<Login />} />
+          path="*"
+          element={
+            <Layout>
+              <NotFound />
+            </Layout>
+          } />
         {/* Common user route */}
         <Route
           path="/profile"
           element={
-            <PrivateRoutes>
+            <PrivateRoutes allowedRoles={["Admin","Teacher","Student"]}>
               <Layout>
                 <Profile />
               </Layout>
@@ -56,7 +61,7 @@ function AppContent() {
         <Route
           path="/update/password"
           element={
-            <PrivateRoutes>
+            <PrivateRoutes allowedRoles={["Admin","Teacher","Student"]}>
               <Layout>
                 <PasswordReset />
               </Layout>
@@ -66,7 +71,7 @@ function AppContent() {
         <Route
           path="/announcements"
           element={
-            <PrivateRoutes>
+            <PrivateRoutes allowedRoles={["Admin","Teacher","Student"]}>
               <Layout>
                 <Announcements />
               </Layout>
@@ -75,7 +80,7 @@ function AppContent() {
         <Route
           path="/create-announcement"
           element={
-            <PrivateRoutes>
+            <PrivateRoutes allowedRoles={["Admin","Teacher"]}>
               <Layout>
                 <CreateAnnouncement />
               </Layout>
@@ -84,7 +89,7 @@ function AppContent() {
         <Route
           path="/timetables"
           element={
-            <PrivateRoutes>
+            <PrivateRoutes allowedRoles={["Admin","Teacher","Student"]}>
               <Layout>
                 <Timetables />
               </Layout>
@@ -93,17 +98,25 @@ function AppContent() {
         <Route
           path="/create-timetable"
           element={
-            <PrivateRoutes>
+            <PrivateRoutes allowedRoles={["Admin","Teacher"]}>
               <Layout>
                 <CreateTimetable />
               </Layout>
             </PrivateRoutes>
           } />
-        {/* Director's routes */}
+        <Route
+          path="/not-found"
+          element={
+              <Layout>
+                <NotFound/>
+              </Layout>
+          } />
+          
+        {/* Admin's routes */}
         <Route
           path="/director/dashboard"
           element={
-            <PrivateRoutes>
+            <PrivateRoutes allowedRoles={["Admin"]}>
               <Layout>
                 <DirectorDashboard />
               </Layout>
@@ -112,7 +125,7 @@ function AppContent() {
         <Route
           path="/director/level-degree"
           element={
-            <PrivateRoutes>
+            <PrivateRoutes allowedRoles={["Admin"]}>
               <Layout>
                 <LevelDegree />
               </Layout>
@@ -121,7 +134,7 @@ function AppContent() {
         <Route
           path="/director/department"
           element={
-            <PrivateRoutes>
+            <PrivateRoutes allowedRoles={["Admin"]}>
               <Layout>
                 <Department />
               </Layout>
@@ -131,7 +144,7 @@ function AppContent() {
         <Route
           path="/student/dashboard"
           element={
-            <PrivateRoutes>
+            <PrivateRoutes allowedRoles={["Student"]}>
               <Layout>
                 <StudentDashboard />
               </Layout>
@@ -140,7 +153,7 @@ function AppContent() {
         <Route
           path="/student/result"
           element={
-            <PrivateRoutes>
+            <PrivateRoutes allowedRoles={["Student"]}>
               <Layout>
                 <StudentResult />
               </Layout>
@@ -149,7 +162,7 @@ function AppContent() {
         <Route
           path="/student/complaint"
           element={
-            <PrivateRoutes>
+            <PrivateRoutes allowedRoles={["Student"]}>
               <Layout>
                 <StudentComplaint />
               </Layout>
@@ -159,7 +172,7 @@ function AppContent() {
         <Route
           path="/hod/staff/dashboard"
           element={
-            <PrivateRoutes>
+            <PrivateRoutes allowedRoles={["Teacher"]}>
               <Layout>
                 <HodStaffDashboard />
               </Layout>
@@ -168,7 +181,7 @@ function AppContent() {
         <Route
           path="/hod/staff/results"
           element={
-            <PrivateRoutes>
+            <PrivateRoutes allowedRoles={["Teacher"]}>
               <Layout>
                 <HodStaffResults />
               </Layout>
@@ -177,7 +190,7 @@ function AppContent() {
         <Route
           path="/hod/staff/class"
           element={
-            <PrivateRoutes>
+            <PrivateRoutes allowedRoles={["Teacher"]}>
               <Layout>
                 <Class />
               </Layout>
@@ -186,7 +199,7 @@ function AppContent() {
         <Route
           path="/hod/staff/class/:id"
           element={
-            <PrivateRoutes>
+            <PrivateRoutes allowedRoles={["Teacher"]}>
               <Layout>
                 <ClassDetail />
               </Layout>
@@ -195,7 +208,7 @@ function AppContent() {
         <Route
           path="/hod/staff/courses"
           element={
-            <PrivateRoutes>
+            <PrivateRoutes allowedRoles={["Teacher"]}>
               <Layout>
                 <StaffCourses />
               </Layout>
@@ -204,7 +217,7 @@ function AppContent() {
         <Route
           path="/hod/staff/department-visualization"
           element={
-            <PrivateRoutes>
+            <PrivateRoutes allowedRoles={["Teacher"]}>
               <Layout>
                 <DepartmentVisualization />
               </Layout>
@@ -213,15 +226,30 @@ function AppContent() {
         <Route
           path="/hod/staff/complaints"
           element={
-            <PrivateRoutes>
+            <PrivateRoutes allowedRoles={["Teacher"]}>
               <Layout>
                 <StaffComplaints />
               </Layout>
             </PrivateRoutes>
           } />
-        <Route path="/student/courses" element={<PrivateRoutes><Layout><StudentCourses /></Layout></PrivateRoutes>} />
-        <Route path="/student/transcript" element={<PrivateRoutes><Layout><StudentTranscript /></Layout></PrivateRoutes>} />
-        <Route path="/hod/staff/transcripts" element={<PrivateRoutes><Layout><StaffTranscripts /></Layout></PrivateRoutes>} />
+        <Route path="/student/courses" element={
+          <PrivateRoutes allowedRoles={["Student"]}>
+            <Layout>
+              <StudentCourses />
+            </Layout>
+          </PrivateRoutes>} />
+        <Route path="/student/transcript" element={
+          <PrivateRoutes allowedRoles={["Student"]}>
+            <Layout>
+              <StudentTranscript />
+            </Layout>
+          </PrivateRoutes>} />
+        <Route path="/hod/staff/transcripts" element={
+          <PrivateRoutes allowedRoles={["Admin","Teacher"]}>
+            <Layout>
+              <StaffTranscripts />
+            </Layout>
+          </PrivateRoutes>} />
       </Routes>
     </Container>
   )

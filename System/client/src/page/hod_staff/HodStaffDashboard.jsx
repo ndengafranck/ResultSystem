@@ -31,17 +31,6 @@ const HodStaffDashboard = () => {
     }
   };
 
-  const handleSync = async () => {
-    try {
-      setIsSyncing(true);
-      const res = await api.get("sync/data");
-      console.log(res);
-    } catch (err) {
-      console.log(`Error of synchronisation ${err}`);
-    } finally {
-      setIsSyncing(false);
-    }
-  };
 
   return (
     <div>
